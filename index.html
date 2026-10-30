@@ -1,0 +1,587 @@
+<title>ISG Field Photos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@700;800&display=swap">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<style>
+:root {
+  --orange: #f5821f;
+  --blue:   #2d9fd8;
+  --black:  #111111;
+  --dark:   #1c1c1c;
+  --card:   #242424;
+  --border: #333333;
+  --white:  #ffffff;
+  --dim:    rgba(255,255,255,0.55);
+  --green:  #4caf50;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: max(0px, env(safe-area-inset-top,0px)) max(16px, env(safe-area-inset-bottom,0px));
+}
+
+/* HEADER */
+.header {
+  width: 100%;
+  background: var(--dark);
+  border-bottom: 2px solid var(--orange);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.header-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.header-logo .i { color: var(--white); }
+.header-logo .s { color: var(--orange); }
+.header-logo .g { color: var(--blue); }
+.header-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--dim); letter-spacing: 0.05em;
+}
+.user-info {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--dim);
+}
+.sign-out-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  padding: 5px 12px; border-radius: 4px;
+  font-size: 11px; cursor: pointer;
+  font-family: 'Barlow', sans-serif;
+}
+.sign-out-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+/* SCREENS */
+.screen { display: none; width: 100%; max-width: 520px; padding: 24px 16px; }
+.screen.active { display: block; }
+
+/* SIGN IN SCREEN */
+.signin-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 48px 32px;
+  text-align: center;
+  margin-top: 40px;
+}
+.signin-card h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 800;
+  margin-bottom: 8px;
+}
+.signin-card p {
+  color: var(--dim); font-size: 14px;
+  margin-bottom: 36px; line-height: 1.5;
+}
+.signin-divider {
+  width: 48px; height: 3px;
+  background: var(--orange);
+  margin: 0 auto 28px;
+  border-radius: 2px;
+}
+#g_signin { display: flex; justify-content: center; }
+
+/* UPLOAD SCREEN */
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 8px;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+.field label {
+  display: block;
+  font-size: 13px; font-weight: 600;
+  color: var(--dim); margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+.field input, .field select {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--orange);
+}
+.field select option { background: var(--dark); }
+
+/* Photo drop zone */
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--orange);
+  background: rgba(245,130,31,0.05);
+}
+.drop-zone input[type="file"] {
+  position: absolute; inset: 0;
+  opacity: 0; cursor: pointer; width: 100%;
+}
+.drop-icon { font-size: 36px; margin-bottom: 10px; }
+.drop-text { font-size: 14px; color: var(--dim); line-height: 1.5; }
+.drop-text strong { color: var(--orange); }
+
+/* Preview grid */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.preview-item {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background: var(--card);
+}
+.preview-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.preview-remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px;
+  background: rgba(0,0,0,0.7);
+  border: none; border-radius: 50%;
+  color: white; font-size: 12px;
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  line-height: 1;
+}
+
+/* Upload button */
+.upload-btn {
+  width: 100%;
+  background: var(--orange);
+  color: #071828;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.upload-btn:hover:not(:disabled) { background: #e06d0a; }
+.upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Progress */
+.progress-wrap {
+  margin-top: 16px;
+  display: none;
+}
+.progress-wrap.visible { display: block; }
+.progress-bar-bg {
+  background: var(--border);
+  border-radius: 4px; height: 6px;
+  overflow: hidden; margin-bottom: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--orange), var(--blue));
+  border-radius: 4px;
+  transition: width 0.3s;
+  width: 0%;
+}
+.progress-text {
+  font-size: 12px; color: var(--dim); text-align: center;
+}
+
+/* Success screen */
+.success-card {
+  background: var(--card);
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  padding: 48px 32px;
+  text-align: center;
+  margin-top: 40px;
+}
+.success-icon { font-size: 48px; margin-bottom: 16px; }
+.success-card h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px; font-weight: 800;
+  color: var(--green); margin-bottom: 8px;
+}
+.success-card p { color: var(--dim); font-size: 14px; margin-bottom: 24px; }
+.success-detail {
+  background: var(--dark);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 13px; color: var(--dim);
+  margin-bottom: 24px; text-align: left;
+  line-height: 1.8;
+}
+.success-detail strong { color: var(--white); }
+.new-upload-btn {
+  background: transparent;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  padding: 12px 32px;
+  border-radius: 6px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+}
+.new-upload-btn:hover { background: rgba(245,130,31,0.1); }
+
+.error-msg {
+  background: rgba(220,53,69,0.15);
+  border: 1px solid rgba(220,53,69,0.4);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 13px; color: #ff6b6b;
+  margin-top: 12px; display: none;
+}
+.error-msg.visible { display: block; }
+</style>
+
+<!-- HEADER -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="header-logo"><span class="i">I</span><span class="s">S</span><span class="g">G</span></div>
+    <div class="header-title">Field Photo Upload</div>
+  </div>
+  <div class="user-info" id="user-info" style="display:none">
+    <span id="user-name"></span>
+    <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+  </div>
+</div>
+
+<!-- SIGN IN SCREEN -->
+<div class="screen active" id="screen-signin">
+  <div class="signin-card">
+    <h1>Field Photos</h1>
+    <div class="signin-divider"></div>
+    <p>Sign in with your Google account to upload jobsite photos directly to the project drive.</p>
+    <div id="g_signin"></div>
+  </div>
+</div>
+
+<!-- UPLOAD SCREEN -->
+<div class="screen" id="screen-upload">
+  <div class="field" style="margin-top:4px">
+    <div class="section-label">Job Details</div>
+    <label>Job / Project Name</label>
+    <input type="text" id="job-name" placeholder="e.g. 123 Main St - Kitchen Reno" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>Photo Type</label>
+    <select id="photo-type">
+      <option value="Progress">Progress Photos</option>
+      <option value="Before">Before</option>
+      <option value="After">After</option>
+      <option value="Issue">Issue / Damage</option>
+      <option value="Delivery">Material Delivery</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
+
+  <div class="section-label" style="margin-bottom:8px">Photos</div>
+  <div class="drop-zone" id="drop-zone">
+    <input type="file" id="file-input" accept="image/*" multiple>
+    <div class="drop-icon">📷</div>
+    <div class="drop-text">
+      <strong>Tap to take or choose photos</strong><br>
+      Supports JPG, PNG, HEIC — multiple at once
+    </div>
+  </div>
+
+  <div class="preview-grid" id="preview-grid"></div>
+
+  <button class="upload-btn" id="upload-btn" onclick="startUpload()" disabled>
+    ⬆ Upload Photos to Drive
+  </button>
+
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="progress-text" id="progress-text">Uploading...</div>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="screen" id="screen-success">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <h2>Photos Uploaded!</h2>
+    <p>Your photos have been saved to Google Drive.</p>
+    <div class="success-detail" id="success-detail"></div>
+    <button class="new-upload-btn" onclick="resetUpload()">Upload More Photos</button>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID = '173900904811-aen499ou81lj5iu8k43oarb0hurjmgk1.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+let accessToken = null;
+let selectedFiles = [];
+let userName = '';
+
+// Google Identity Services — single OAuth flow for Drive access
+let tokenClient;
+
+window.onload = () => {
+  const tryInit = () => {
+    if (typeof google !== 'undefined') {
+      initGSI();
+    } else {
+      setTimeout(tryInit, 500);
+    }
+  };
+  tryInit();
+};
+
+function initGSI() {
+  // Use token client only — one popup, gets Drive access + identity in one step
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES + ' https://www.googleapis.com/auth/userinfo.profile email',
+    callback: onTokenReceived,
+  });
+
+  // Replace the div with a styled button (no GSI button render needed)
+  const btn = document.createElement('button');
+  btn.className = 'upload-btn';
+  btn.style.cssText = 'max-width:260px;margin:0 auto;font-size:15px;gap:8px;';
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.7 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.4c-.5 2.8-2.1 5.2-4.5 6.8l7 5.4C43 36.5 46.1 30.9 46.1 24.5z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7l7.9-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7-5.4c-2 1.4-4.6 2.2-8.2 2.2-6.2 0-11.5-4.2-13.4-9.8l-7.9 6C6.7 42.6 14.7 48 24 48z"/></svg> Sign in with Google';
+  btn.onclick = () => tokenClient.requestAccessToken({ prompt: 'consent' });
+  document.getElementById('g_signin').appendChild(btn);
+}
+
+async function onTokenReceived(tokenResponse) {
+  if (tokenResponse.error) {
+    showError('Sign-in failed: ' + tokenResponse.error);
+    return;
+  }
+  accessToken = tokenResponse.access_token;
+
+  // Fetch user info
+  try {
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    const info = await res.json();
+    userName = info.name || info.email || 'Contractor';
+  } catch(e) {
+    userName = 'Contractor';
+  }
+
+  document.getElementById('user-name').textContent = userName;
+  document.getElementById('user-info').style.display = 'flex';
+  showScreen('upload');
+}
+
+function signOut() {
+  google.accounts.oauth2.revoke(accessToken, () => {});
+  accessToken = null;
+  selectedFiles = [];
+  document.getElementById('user-info').style.display = 'none';
+  document.getElementById('preview-grid').innerHTML = '';
+  updateUploadBtn();
+  showScreen('signin');
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+// File handling
+const fileInput = document.getElementById('file-input');
+const dropZone = document.getElementById('drop-zone');
+
+fileInput.addEventListener('change', e => addFiles(e.target.files));
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
+
+function addFiles(fileList) {
+  Array.from(fileList).forEach(f => {
+    if (f.type.startsWith('image/')) selectedFiles.push(f);
+  });
+  renderPreviews();
+  updateUploadBtn();
+}
+
+function renderPreviews() {
+  const grid = document.getElementById('preview-grid');
+  grid.innerHTML = '';
+  selectedFiles.forEach((f, i) => {
+    const url = URL.createObjectURL(f);
+    const div = document.createElement('div');
+    div.className = 'preview-item';
+    div.innerHTML = `<img src="${url}"><button class="preview-remove" onclick="removeFile(${i})">✕</button>`;
+    grid.appendChild(div);
+  });
+}
+
+function removeFile(i) {
+  selectedFiles.splice(i, 1);
+  renderPreviews();
+  updateUploadBtn();
+}
+
+function updateUploadBtn() {
+  const btn = document.getElementById('upload-btn');
+  const job = document.getElementById('job-name') ? document.getElementById('job-name').value.trim() : '';
+  btn.disabled = selectedFiles.length === 0 || !accessToken;
+}
+
+document.getElementById('job-name').addEventListener('input', updateUploadBtn);
+
+// Upload
+async function startUpload() {
+  const jobName = document.getElementById('job-name').value.trim();
+  const photoType = document.getElementById('photo-type').value;
+
+  if (!jobName) {
+    showError('Please enter a job name before uploading.');
+    return;
+  }
+  if (selectedFiles.length === 0) {
+    showError('Please select at least one photo.');
+    return;
+  }
+
+  hideError();
+  document.getElementById('upload-btn').disabled = true;
+  const progress = document.getElementById('progress-wrap');
+  progress.classList.add('visible');
+
+  try {
+    // 1. Create or find folder for job
+    const folderId = await getOrCreateFolder(jobName);
+
+    // 2. Upload each file
+    let uploaded = 0;
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+
+    for (const file of selectedFiles) {
+      const fileName = `${photoType}_${dateStr}_${file.name}`;
+      await uploadFile(file, fileName, folderId);
+      uploaded++;
+      const pct = Math.round((uploaded / selectedFiles.length) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = `Uploading ${uploaded} of ${selectedFiles.length}...`;
+    }
+
+    // Show success
+    document.getElementById('success-detail').innerHTML =
+      `<strong>Job:</strong> ${jobName}<br>
+       <strong>Type:</strong> ${photoType}<br>
+       <strong>Photos uploaded:</strong> ${uploaded}<br>
+       <strong>Date:</strong> ${dateStr}<br>
+       <strong>Uploaded by:</strong> ${userName}`;
+
+    showScreen('success');
+
+  } catch (err) {
+    showError('Upload failed: ' + (err.message || err));
+    document.getElementById('upload-btn').disabled = false;
+  }
+
+  progress.classList.remove('visible');
+}
+
+async function getOrCreateFolder(jobName) {
+  // Search for existing folder
+  const q = encodeURIComponent(`name='${jobName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`, {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+  const data = await res.json();
+  if (data.files && data.files.length > 0) return data.files[0].id;
+
+  // Create new folder
+  const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + accessToken,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name: jobName,
+      mimeType: 'application/vnd.google-apps.folder',
+    }),
+  });
+  const folder = await createRes.json();
+  return folder.id;
+}
+
+async function uploadFile(file, fileName, folderId) {
+  const metadata = { name: fileName, parents: [folderId] };
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', file);
+
+  const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + accessToken },
+    body: form,
+  });
+  if (!res.ok) throw new Error('Failed to upload ' + fileName);
+  return res.json();
+}
+
+function resetUpload() {
+  selectedFiles = [];
+  document.getElementById('preview-grid').innerHTML = '';
+  document.getElementById('job-name').value = '';
+  document.getElementById('photo-type').selectedIndex = 0;
+  updateUploadBtn();
+  showScreen('upload');
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function hideError() {
+  document.getElementById('error-msg').classList.remove('visible');
+}
+</script>
